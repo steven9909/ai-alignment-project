@@ -1,0 +1,5 @@
+mistral:
+  name: mistralai/Mistral-7B-Instruct-v0.2
+
+llama:
+  name: meta-llama/llama-2-7b-hf
