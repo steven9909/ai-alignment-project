@@ -2,14 +2,16 @@ from abc import ABC, abstractmethod
 import typing as t
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
+from collections import defaultdict
 
 
 class BaseModel(ABC):
     def __init__(self, name, device):
         self.model = AutoModelForCausalLM.from_pretrained(name).to(device)
         self.tokenizer = AutoTokenizer.from_pretrained(name)
+
         self.handles = []
-        self.activations = {}
+        self.activations = defaultdict(list)
         self.device = device
 
     @abstractmethod
@@ -34,6 +36,7 @@ class BaseModel(ABC):
         """
         for name, module in self.model.named_modules():
             if layer_name in name:
+                self.activations[name].clear()
                 self.handles.append(
                     module.register_forward_hook(self._get_activation(layer_name))
                 )
@@ -60,6 +63,6 @@ class BaseModel(ABC):
         """
 
         def hook(_1, _2, output):
-            self.activations[name] = output.detach()
+            self.activations[name].append(output.detach().cpu().numpy())
 
         return hook
