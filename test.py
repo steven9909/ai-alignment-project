@@ -4,6 +4,8 @@ import torch
 
 device = torch.device("mps")
 model = MistralModel(device)
+print(model.pretty_print())
+model.register_hook("layers.31.mlp")
 print(
     model.infer(
         messages=[
@@ -16,3 +18,4 @@ print(
         ]
     )
 )
+print(model.activations["layers.31.mlp"])
