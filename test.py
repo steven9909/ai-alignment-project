@@ -1,4 +1,4 @@
-from models.mistral.model import MistralModel
+from models.mistral import MistralModel
 
 import torch
 
