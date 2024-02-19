@@ -3,12 +3,14 @@ import typing as t
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 from collections import defaultdict
+import os
+from dotenv import load_dotenv
 
 
 class BaseModel(ABC):
-    def __init__(self, name, device):
-        self.model = AutoModelForCausalLM.from_pretrained(name).to(device)
-        self.tokenizer = AutoTokenizer.from_pretrained(name)
+    def __init__(self, name, device, **kwargs):
+        self.model = AutoModelForCausalLM.from_pretrained(name, **kwargs).to(device)
+        self.tokenizer = AutoTokenizer.from_pretrained(name, **kwargs)
 
         self.handles = []
         self.activations = defaultdict(list)
@@ -66,3 +68,9 @@ class BaseModel(ABC):
             self.activations[name].append(output.detach().cpu().numpy())
 
         return hook
+
+
+class AuthBaseModel(BaseModel):
+    def __init__(self, name, device):
+        load_dotenv("./auth.env")
+        super().__init__(name, device, token=os.getenv("HUGGINGFACE_TOKEN"))
