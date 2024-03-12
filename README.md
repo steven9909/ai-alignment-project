@@ -3,20 +3,22 @@
 Using Python 3.11
 
 - [x] Set up access to model internals
-- [ ]  Set up environments
-- [ ]  Set up Avalon-LLM (Stephen)
-  - [ ] Get it to run locally
+- [x]  Set up environments
+- [x]  Set up Avalon-LLM
+  - [x] Get it to run locally
   - [ ] Testing activation patching
   - [ ] Testing Mistral involvement
  - [ ]  Get training data (2 truths 1 lie)
-  - [ ] Prompt experimentation
-    - [ ] LLaMA (Bruce)
-    - [ ] Mistral (Bruce)
-    - [ ] Test with DSPy (Rob)
+  - [x] Prompt experimentation
+    - [x] LLaMA (Bruce)
+    - [x] Mistral (Bruce)
+    - [x] Test with DSPy (Rob)
     - [ ] Test with getting GPT-4 to provide few-shot prompting?
   - [ ] Get datasets with response + hidden representations
-- [ ] Replicate RepE approach
-  - [ ] Extract last token of sentance
-  - [ ] Unstructured PCA?
-- [ ] Test
+    - [ ] Make dataset of 2 truths and a lie (each row is 3 sentences, a label for each, and then the group has a label (Stephen)
+- [ ] RepE 
+  - [ ] testing using RepE dataset (simplified) (Rob)
+  - [ ] Testing on two truths and a lie dataset (Bruce)
 - [ ] Write-up
+
+Meet Sunday at 11
