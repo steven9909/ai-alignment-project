@@ -34,11 +34,7 @@ class NTruthMLieProcessor:
             ]
             torch.save(
                 all_tensors,
-                "./dataset/activations/"
-                + sentences[-1]
-                + ";"
-                + " ".join(labels)
-                + ".pt",
+                "./data/activations/" + sentences[-1] + ";" + " ".join(labels) + ".pt",
             )
             self.model.activations.clear()
 
