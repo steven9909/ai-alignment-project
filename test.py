@@ -5,9 +5,9 @@ from pathlib import Path
 
 import torch
 
+device = torch.device("mps")
+
 processor = NTruthMLieProcessor(
-    NTruthMLieLoader(2, 2, Path("./data/facts_true_false.csv")),
-    MistralModel(torch.device("mps")),
-    torch.device("mps"),
+    NTruthMLieLoader(2, 2, Path("./data/facts_true_false.csv")), MistralModel(device)
 )
 processor.process()
