@@ -88,5 +88,5 @@ class NTruthMLieLoader:
 
 
 if __name__ == "__main__":
-    loader = NTruthMLieLoader(2, 2, Path("../data/facts_true_false.csv"))
+    loader = NTruthMLieLoader(2, 1, Path("../data/facts_true_false.csv"))
     print(loader.sample_w_r(4))

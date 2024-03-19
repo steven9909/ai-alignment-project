@@ -8,6 +8,6 @@ import torch
 device = torch.device("mps")
 
 processor = NTruthMLieProcessor(
-    NTruthMLieLoader(2, 2, Path("./data/facts_true_false.csv")), MistralModel(device)
+    NTruthMLieLoader(2, 1, Path("./data/facts_true_false.csv")), MistralModel(device)
 )
 processor.process()

@@ -5,6 +5,8 @@ from torch.utils.data import DataLoader, Dataset
 from pathlib import Path
 from typing import List, Union, Tuple
 import torch
+import csv
+from tqdm import tqdm
 
 
 class NTruthMLieProcessor:
@@ -17,26 +19,30 @@ class NTruthMLieProcessor:
         self.dataset = NTruthMLieDataset(self.loader)
 
     def process(self):
-        for i in range(len(self.dataset)):
-            sentences, labels = self.dataset[i]
+        with open("./data/activations/association.csv", "w") as f:
+            writer = csv.writer(f, delimiter=",")
+            for i in tqdm(range(len(self.dataset))):
+                sentences, labels = self.dataset[i]
 
-            for sentence in sentences:
-                self.model.infer(
-                    [
-                        {"role": "user", "content": ""},
-                        {"role": "assistant", "content": sentence},
-                    ],
-                    new_tokens=1,
+                for sentence in sentences:
+                    self.model.infer(
+                        [
+                            {"role": "user", "content": ""},
+                            {"role": "assistant", "content": sentence},
+                        ],
+                        new_tokens=1,
+                    )
+
+                all_tensors = [
+                    self.model.activations[layer_name]
+                    for layer_name in self.layer_names
+                ]
+                torch.save(
+                    all_tensors,
+                    "./data/activations/" + str(i) + ".pt",
                 )
-
-            all_tensors = [
-                self.model.activations[layer_name] for layer_name in self.layer_names
-            ]
-            torch.save(
-                all_tensors,
-                "./data/activations/" + sentences[-1] + ";" + " ".join(labels) + ".pt",
-            )
-            self.model.activations.clear()
+                writer.writerow([str(i), sentences[-1], labels])
+                self.model.activations.clear()
 
 
 class NTruthMLieDataset(Dataset):
@@ -47,10 +53,10 @@ class NTruthMLieDataset(Dataset):
     def __len__(self):
         return len(self.data)
 
-    def __getitem__(self, idx: int) -> Tuple[List[str], List[str]]:
+    def __getitem__(self, idx: int) -> Tuple[List[str], str]:
         datapoint = self.data[idx]
         sentences = self._accumulate([sentence[0] for sentence in datapoint])
-        labels = self._accumulate([str(sentence[1]) for sentence in datapoint])
+        labels = "".join([str(sentence[1]) for sentence in datapoint])
 
         return sentences, labels
 
