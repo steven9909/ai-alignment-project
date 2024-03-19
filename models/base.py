@@ -30,20 +30,26 @@ class BaseModel(ABC):
         for name, _ in self.model.named_modules():
             print(name)
 
-    def register_hook(self, layer_name: str) -> None:
+    def register_hook(self, layer_name: str, all: bool) -> None:
         """Registers a hook to the layer that contains layer_name
 
         Args:
             layer_name (str): name of the lauer
+            all (bool): flag to register to all layers that contain layer_name
         """
+        layer_names = []
         for name, module in self.model.named_modules():
             if layer_name in name:
                 self.activations[name].clear()
                 self.handles.append(
-                    module.register_forward_hook(self._get_activation(layer_name))
+                    module.register_forward_hook(self._get_activation(name))
                 )
+                layer_names.append(name)
                 print(f"Registered hook for {name}")
-                break
+                if not all:
+                    return layer_names
+
+        return layer_names
 
     def clear_all_hooks(self) -> None:
         """Clears all hooks that have been registered on this model"""

@@ -2,3 +2,4 @@
 __pycache__/
 
 auth.env
+.DS_Store

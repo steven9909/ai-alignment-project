@@ -50,7 +50,7 @@ class NTruthMLieLoader:
         return self._sample(k, replace=False)
 
     def _sample(self, k: int, replace: bool) -> List[List[Tuple]]:
-        """helper function for samplig
+        """helper function for sampling
 
         Args:
             k (int): number of datapoints to sample

@@ -1,16 +1,13 @@
 from models.mistral import MistralModel
+from dataset.processor import NTruthMLieProcessor
+from dataset.loader import NTruthMLieLoader
+from pathlib import Path
 
 import torch
 
-device = torch.device("mps")
-model = MistralModel(device)
-print(model.pretty_print())
-model.register_hook("layers.31.mlp")
-print(
-    model.infer(
-        messages=[
-            {"role": "user", "content": "Lets play two truths and a lie!"},
-        ]
-    )
+processor = NTruthMLieProcessor(
+    NTruthMLieLoader(2, 2, Path("./data/facts_true_false.csv")),
+    MistralModel(torch.device("mps")),
+    torch.device("mps"),
 )
-print(len(model.activations["layers.31.mlp"]))
+processor.process()
