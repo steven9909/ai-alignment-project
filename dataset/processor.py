@@ -9,9 +9,7 @@ import torch
 
 class NTruthMLieProcessor:
 
-    def __init__(
-        self, loader: NTruthMLieLoader, model: BaseModel, device: torch.device
-    ):
+    def __init__(self, loader: NTruthMLieLoader, model: BaseModel):
         self.loader = loader
         self.model = model
         self.layer_names = self.model.register_hook("act_fn", all=True)
