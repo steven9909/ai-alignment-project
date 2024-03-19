@@ -30,7 +30,7 @@ class BaseModel(ABC):
         for name, _ in self.model.named_modules():
             print(name)
 
-    def register_hook(self, layer_name: str, all: bool) -> None:
+    def register_hook(self, layer_name: str, all: bool) -> t.List[str]:
         """Registers a hook to the layer that contains layer_name
 
         Args:
