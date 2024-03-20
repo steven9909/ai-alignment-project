@@ -5,3 +5,6 @@ auth.env
 .DS_Store
 
 data/activations/
+*.sh
+*.err
+*.out
