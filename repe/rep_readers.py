@@ -4,6 +4,7 @@ from sklearn.cluster import KMeans
 import numpy as np
 from itertools import islice
 import torch
+import os, pickle
 
 def project_onto_direction(H, direction):
     """Project matrix H (n, d_1) onto direction vector (d_2,)"""
@@ -183,6 +184,33 @@ class PCARepReader(RepReader):
 
         return signs
     
+    def save(self, model_name_or_path, dataset_name):
+        data_to_save = {'reading_vec': self.directions, 
+                        'direction_signs': self.direction_signs, 
+                        'n_components': self.n_components, 
+                        'H_train_means' : self.H_train_means}
+        file_format = "./data/rep_readers/{model}_{dataset}.pkl"
+        file = file_format.format(model=MODELS[model_name_or_path], dataset=dataset_name)
+        with open(file, 'wb') as file:
+            pickle.dump(data_to_save, file)
+
+    def load(self, model_name_or_path, dataset_name):
+        file_format = "./data/rep_readers/{model}_{dataset}.pkl"
+        file = file_format.format(model=MODELS[model_name_or_path], dataset=dataset_name)
+
+        if not os.path.isfile(file):
+            return False
+
+        with open(file, 'rb') as file:
+            data = pickle.load(file)
+            
+            self.directions = data['reading_vec'] 
+            self.direction_signs = data['direction_signs'] 
+            self.n_components = data['n_components']
+            self.H_train_means = data['H_train_means']
+
+        return True
+        
 
         
 class ClusterMeanRepReader(RepReader):
@@ -240,4 +268,9 @@ DIRECTION_FINDERS = {
     'pca': PCARepReader,
     'cluster_mean': ClusterMeanRepReader,
     'random': RandomRepReader,
+}
+
+MODELS = {
+    "mistralai/Mistral-7B-Instruct-v0.2": "mistral",
+    "meta-llama/Llama-2-7b-hf" : "llama-2"
 }
