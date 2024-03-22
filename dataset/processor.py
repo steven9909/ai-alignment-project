@@ -7,7 +7,7 @@ from typing import List, Union, Tuple
 import torch
 import csv
 from tqdm import tqdm
-
+from transformers import PreTrainedTokenizer
 
 class NTruthMLieProcessor:
 
@@ -18,7 +18,7 @@ class NTruthMLieProcessor:
 
         self.dataset = NTruthMLieDataset(self.loader)
 
-    def process(self):
+    def process(self, save=True):
         with open("./data/activations/association.csv", "w") as f:
             writer = csv.writer(f, delimiter=",")
             for i in tqdm(range(len(self.dataset))):
@@ -37,12 +37,14 @@ class NTruthMLieProcessor:
                     self.model.activations[layer_name]
                     for layer_name in self.layer_names
                 ]
-                torch.save(
-                    all_tensors,
-                    "./data/activations/" + str(i) + ".pt",
-                )
+                if save:
+                    torch.save(
+                        all_tensors,
+                        "./data/activations/" + str(i) + ".pt",
+                        )
                 writer.writerow([str(i), sentences[-1], labels])
                 self.model.activations.clear()
+                return all_tensors
 
 
 class NTruthMLieDataset(Dataset):
@@ -55,7 +57,7 @@ class NTruthMLieDataset(Dataset):
 
     def __getitem__(self, idx: int) -> Tuple[List[str], str]:
         datapoint = self.data[idx]
-        sentences = self._accumulate([sentence[0] for sentence in datapoint])
+        sentences = self.accumulate([sentence[0] for sentence in datapoint])
         labels = "".join([str(sentence[1]) for sentence in datapoint])
 
         return sentences, labels
@@ -77,7 +79,6 @@ class NTruthMLieDataset(Dataset):
         for i, sentence in enumerate(sentences):
             cur += (sep if i > 0 else "") + sentence
             accumulated.append(cur)
-        return accumulated
 
 
 if __name__ == "__main__":

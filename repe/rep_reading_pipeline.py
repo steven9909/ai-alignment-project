@@ -19,7 +19,7 @@ class RepReadingPipeline(Pipeline):
         if hasattr(outputs, 'encoder_hidden_states') and hasattr(outputs, 'decoder_hidden_states'):
             outputs['hidden_states'] = outputs[f'{which_hidden_states}_hidden_states']
     
-        hidden_states_layers = {}
+        hidden_states_layers = {} # dict mapping layer to activations?
         for layer in hidden_layers:
             hidden_states = outputs['hidden_states'][layer]
             hidden_states =  hidden_states[:, rep_token, :]
