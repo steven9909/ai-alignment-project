@@ -7,7 +7,10 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize
 from matplotlib.colors import LinearSegmentedColormap
 
-def honesty_function_dataset(data_path: str, tokenizer: PreTrainedTokenizer, user_tag: str = "", assistant_tag: str = "", seed: int = 0) -> (list, list):
+def honesty_function_dataset(data_path: str, tokenizer: PreTrainedTokenizer, 
+                             user_tag: str = "", assistant_tag: str = "", 
+                             contrast: str = "prompt", 
+                             seed: int = 0) -> (list, list):
     """
     Processes data to create training and testing datasets based on honesty.
 
@@ -16,6 +19,7 @@ def honesty_function_dataset(data_path: str, tokenizer: PreTrainedTokenizer, use
     - tokenizer (PreTrainedTokenizer): Tokenizer to tokenize statements.
     - user_tag (str): Instruction template.
     - assistant_tag (str): Instruction template user tag.
+    - contrast (str): Method of contrasting honest and untruthful statements (either "prompt" or "statement")
     - seed (int): Random seed for reproducibility.
 
     Returns:
@@ -29,22 +33,41 @@ def honesty_function_dataset(data_path: str, tokenizer: PreTrainedTokenizer, use
     df = pd.read_csv(data_path)
     true_statements = df[df['label'] == 1]['statement'].values.tolist()
     false_statements = df[df['label'] == 0]['statement'].values.tolist()
+    if len(true_statements) != len(false_statements):
+        true_statements = true_statements[:min(len(true_statements), len(false_statements))]
+        false_statements = false_statements[:min(len(true_statements), len(false_statements))]
+
 
     template_str = "Pretend you're {type} person making statements about the world."
     honest_statements = []
     untruthful_statements = []
 
     # Process statements
-    for statement in true_statements:
-        tokens = tokenizer.tokenize(statement)
-        
-        for idx in range(1, len(tokens) - 5):
-            truncated_tokens = tokens[:idx]
-            truncated_statement = tokenizer.convert_tokens_to_string(truncated_tokens)
+    if contrast == "prompt":
+        for statement in true_statements:
+            tokens = tokenizer.tokenize(statement)
+            
+            for idx in range(1, len(tokens) - 5):
+                truncated_tokens = tokens[:idx]
+                truncated_statement = tokenizer.convert_tokens_to_string(truncated_tokens)
 
-            honest_statements.append(f"{user_tag} {template_str.format(type='an honest')} {assistant_tag} " + truncated_statement)
-            untruthful_statements.append(f"{user_tag} {template_str.format(type='an untruthful')} {assistant_tag} " + truncated_statement)
+                honest_statements.append(f"{user_tag} {template_str.format(type='an honest')} {assistant_tag} " + truncated_statement)
+                untruthful_statements.append(f"{user_tag} {template_str.format(type='an untruthful')} {assistant_tag} " + truncated_statement)
+    elif contrast == "statement":
+        for true_statement, false_statement in zip(true_statements, false_statements):
+            true_tokens = tokenizer.tokenize(true_statement)
+            false_tokens = tokenizer.tokenize(false_statement)
+            for idx in range(1, len(true_tokens)+1):
+                truncated_tokens = true_tokens[:idx]
+                truncated_statement = tokenizer.convert_tokens_to_string(truncated_tokens)
+                honest_statements.append(f"{user_tag} {template_str.format(type='an honest')} {assistant_tag} " + truncated_statement)
+                
+            for idx in range(1, len(false_tokens)+1):
+                truncated_tokens = false_tokens[:idx]
+                truncated_statement = tokenizer.convert_tokens_to_string(truncated_tokens)
+                untruthful_statements.append(f"{user_tag} {template_str.format(type='an honest')} {assistant_tag} " + truncated_statement)
 
+    
     # Create training data
     ntrain = 512
     combined_data = [[honest, untruthful] for honest, untruthful in zip(honest_statements, untruthful_statements)]

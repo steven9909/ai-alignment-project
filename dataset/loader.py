@@ -12,6 +12,8 @@ class NTruthMLieLoader:
             n (int): number of lie statements
             path (Path): path to the dataset (csv file format)
         """
+        if m < 0 or n < 0 or m == n == 0:
+            raise ValueError("m and n should be nonnegative integers; at least one must be positive")
         self.m = m
         self.n = n
         self.path = path
@@ -65,7 +67,12 @@ class NTruthMLieLoader:
         if k == -1 and replace:
             raise ValueError("k cannot be -1 if sampling with replacement")
         elif k == -1 and not replace:
-            k = min(len(self.df_true) // self.m, len(self.df_false) // self.n)
+            if self.n and not self.m:
+                k = len(self.df_false) // self.n
+            elif self.m and not self.n:
+                k = len(self.df_true) // self.m
+            else:
+                k = min(len(self.df_true) // self.m, len(self.df_false) // self.n)
 
         true_statements = self.df_true.sample(self.m * k, replace=replace)
         false_statements = self.df_false.sample(self.n * k, replace=replace)

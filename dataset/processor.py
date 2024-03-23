@@ -1,6 +1,6 @@
-from .loader import NTruthMLieLoader
-from models.base import BaseModel
-from models.mistral import MistralModel
+from loader import NTruthMLieLoader
+# from models.base import BaseModel
+# from models.mistral import MistralModel
 from torch.utils.data import DataLoader, Dataset
 from pathlib import Path
 from typing import List, Union, Tuple
@@ -9,42 +9,42 @@ import csv
 from tqdm import tqdm
 from transformers import PreTrainedTokenizer
 
-class NTruthMLieProcessor:
+# class NTruthMLieProcessor:
 
-    def __init__(self, loader: NTruthMLieLoader, model: BaseModel):
-        self.loader = loader
-        self.model = model
-        self.layer_names = self.model.register_hook("act_fn", all=True)
+#     def __init__(self, loader: NTruthMLieLoader, model: BaseModel):
+#         self.loader = loader
+#         self.model = model
+#         self.layer_names = self.model.register_hook("act_fn", all=True)
 
-        self.dataset = NTruthMLieDataset(self.loader)
+#         self.dataset = NTruthMLieDataset(self.loader)
 
-    def process(self, save=True):
-        with open("./data/activations/association.csv", "w") as f:
-            writer = csv.writer(f, delimiter=",")
-            for i in tqdm(range(len(self.dataset))):
-                sentences, labels = self.dataset[i]
+#     def process(self, save=True):
+#         with open("./data/activations/association.csv", "w") as f:
+#             writer = csv.writer(f, delimiter=",")
+#             for i in tqdm(range(len(self.dataset))):
+#                 sentences, labels = self.dataset[i]
 
-                for sentence in sentences:
-                    self.model.infer(
-                        [
-                            {"role": "user", "content": ""},
-                            {"role": "assistant", "content": sentence},
-                        ],
-                        new_tokens=1,
-                    )
+#                 for sentence in sentences:
+#                     self.model.infer(
+#                         [
+#                             {"role": "user", "content": ""},
+#                             {"role": "assistant", "content": sentence},
+#                         ],
+#                         new_tokens=1,
+#                     )
 
-                all_tensors = [
-                    self.model.activations[layer_name]
-                    for layer_name in self.layer_names
-                ]
-                if save:
-                    torch.save(
-                        all_tensors,
-                        "./data/activations/" + str(i) + ".pt",
-                        )
-                writer.writerow([str(i), sentences[-1], labels])
-                self.model.activations.clear()
-                return all_tensors
+#                 all_tensors = [
+#                     self.model.activations[layer_name]
+#                     for layer_name in self.layer_names
+#                 ]
+#                 if save:
+#                     torch.save(
+#                         all_tensors,
+#                         "./data/activations/" + str(i) + ".pt",
+#                         )
+#                 writer.writerow([str(i), sentences[-1], labels])
+#                 self.model.activations.clear()
+#                 return all_tensors
 
 
 class NTruthMLieDataset(Dataset):
@@ -57,7 +57,7 @@ class NTruthMLieDataset(Dataset):
 
     def __getitem__(self, idx: int) -> Tuple[List[str], str]:
         datapoint = self.data[idx]
-        sentences = self.accumulate([sentence[0] for sentence in datapoint])
+        sentences = self._accumulate([sentence[0] for sentence in datapoint])
         labels = "".join([str(sentence[1]) for sentence in datapoint])
 
         return sentences, labels
@@ -79,13 +79,25 @@ class NTruthMLieDataset(Dataset):
         for i, sentence in enumerate(sentences):
             cur += (sep if i > 0 else "") + sentence
             accumulated.append(cur)
+        return accumulated
 
+    def save(self, path: str):
+        with open(path, "w") as f:
+            writer = csv.writer(f, delimiter=",")
+            for i in range(len(self.data)):
+                sentences, labels = self[i]
+                writer.writerow([str(i), sentences[-1], labels])
 
 if __name__ == "__main__":
 
-    processor = NTruthMLieProcessor(
-        NTruthMLieLoader(2, 2, Path("./data/facts_true_false.csv")),
-        MistralModel(torch.device("mps")),
-        torch.device("mps"),
-    )
-    processor.process()
+    # processor = NTruthMLieProcessor(
+    #     NTruthMLieLoader(2, 2, Path("./data/facts_true_false.csv")),
+    #     MistralModel(torch.device("mps")),
+    #     torch.device("mps"),
+    # )
+    # processor.process()
+    dataset_twotrue = NTruthMLieDataset(NTruthMLieLoader(2, 0, Path("./data/facts_true_false.csv")))
+    dataset_truefalse = NTruthMLieDataset(NTruthMLieLoader(1, 1, Path("./data/facts_true_false.csv")))
+
+    dataset_twotrue.save("./data/activations/m=2n=0.csv")
+    dataset_truefalse.save("./data/activations/m=1n=1.csv")
