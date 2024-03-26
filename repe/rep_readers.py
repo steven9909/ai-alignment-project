@@ -12,7 +12,7 @@ def project_onto_direction(H, direction):
     # Calculate the magnitude of the direction vector
     # Ensure H and direction are on the same device (CPU or GPU)
     if type(direction) != torch.Tensor:
-        H = torch.Tensor(H).to(torch.device("mps"))
+        H = torch.Tensor(H).cuda()
     if type(direction) != torch.Tensor:
         direction = torch.Tensor(direction)
         direction = direction.to(H.device)
@@ -24,11 +24,11 @@ def project_onto_direction(H, direction):
 
 
 def recenter(x, mean=None):
-    x = torch.Tensor(x).to(torch.device("mps"))
+    x = torch.Tensor(x).cuda()
     if mean is None:
-        mean = torch.mean(x, axis=0, keepdims=True).to(torch.device("mps"))
+        mean = torch.mean(x, axis=0, keepdims=True).cuda()
     else:
-        mean = torch.Tensor(mean).to(torch.device("mps"))
+        mean = torch.Tensor(mean).cuda()
     return x - mean
 
 

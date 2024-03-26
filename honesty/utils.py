@@ -107,7 +107,7 @@ def plot_detection_results(
     # Define words and their colors
     words = [token.replace("▁", " ") for token in input_ids]
 
-    print("words: " + words)
+    print(f"words: {words}")
 
     # Create a new figure
     fig, ax = plt.subplots(figsize=(12.8, 10), dpi=200)
@@ -152,7 +152,7 @@ def plot_detection_results(
 
         if "mean" in n_style:
             rep_scores = rep_scores - THRESHOLD  # change this for threshold
-            rep_scores = rep_scores / np.std(rep_scores[5:])
+            rep_scores = rep_scores / np.std(rep_scores)
             rep_scores = np.clip(rep_scores, -mag, mag)
         if "flip" in n_style:
             rep_scores = -rep_scores
@@ -173,15 +173,7 @@ def plot_detection_results(
         max_line_width = xlim
         started = False
 
-        for word, score in zip(words[5:], rep_scores[5:]):
-
-            if start_answer_token in word:
-                started = True
-                print("started")
-                continue
-            if not started:
-                print("skipping")
-                continue
+        for word, score in zip(words, rep_scores):
 
             color = colormap(norm(score))
 
