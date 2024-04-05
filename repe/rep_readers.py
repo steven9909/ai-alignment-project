@@ -18,6 +18,10 @@ def project_onto_direction(H, direction):
     mag = torch.norm(direction)
     assert not torch.isinf(mag).any()
     # Calculate the projection
+    if H.dtype != torch.float16:
+        H = H.half()
+    if direction.dtype != torch.float16:
+        direction = direction.half()
     projection = H.matmul(direction) / mag
     return projection
 
@@ -184,32 +188,30 @@ class PCARepReader(RepReader):
 
         return signs
     
-    def save(self, model_name_or_path, dataset_name):
+    def save(self, savename):
         data_to_save = {'reading_vec': self.directions, 
                         'direction_signs': self.direction_signs, 
                         'n_components': self.n_components, 
                         'H_train_means' : self.H_train_means}
-        file_format = "./data/rep_readers/{model}_{dataset}.pkl"
-        file = file_format.format(model=MODELS[model_name_or_path], dataset=dataset_name)
+        file = f"./data/rep_readers/{savename}.pkl"
         with open(file, 'wb') as file:
             pickle.dump(data_to_save, file)
 
-    def load(self, model_name_or_path, dataset_name):
-        file_format = "./data/rep_readers/{model}_{dataset}.pkl"
-        file = file_format.format(model=MODELS[model_name_or_path], dataset=dataset_name)
-
+    def from_pretrained(savename):
+        file = f"./data/rep_readers/{savename}.pkl"
         if not os.path.isfile(file):
-            return False
+            raise FileNotFoundError(f"Rep reader data not found")
 
         with open(file, 'rb') as file:
             data = pickle.load(file)
             
-            self.directions = data['reading_vec'] 
-            self.direction_signs = data['direction_signs'] 
-            self.n_components = data['n_components']
-            self.H_train_means = data['H_train_means']
+            reader = PCARepReader()
+            reader.directions = data['reading_vec'] 
+            reader.direction_signs = data['direction_signs'] 
+            reader.n_components = data['n_components']
+            reader.H_train_means = data['H_train_means']
 
-        return True
+        return reader
         
 
         
@@ -243,6 +245,21 @@ class ClusterMeanRepReader(RepReader):
             directions[layer] = H_pos_mean - H_neg_mean
         
         return directions
+
+    def from_pretrained(savename):
+        file = f"./data/rep_readers/{savename}.pkl"
+        if not os.path.isfile(file):
+            raise FileNotFoundError(f"Rep reader data not found")
+
+        with open(file, 'rb') as file:
+            data = pickle.load(file)
+            
+            reader = ClusterMeanRepReader()
+            reader.directions = data['reading_vec'] 
+            reader.direction_signs = data['direction_signs'] 
+            reader.direction_method = "cluster_mean"
+        return reader
+        
 
 
 class RandomRepReader(RepReader):
