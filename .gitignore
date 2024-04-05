@@ -5,7 +5,10 @@ auth.env
 .DS_Store
 
 data/activations/
-data/rep_readers/
+data/acts
 *.sh
 *.err
 *.out
+*.pt
+*.csv
+results

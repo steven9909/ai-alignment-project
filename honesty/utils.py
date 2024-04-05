@@ -33,7 +33,7 @@ def honesty_function_dataset(data_path: str, tokenizer: PreTrainedTokenizer,
     df = pd.read_csv(data_path)
     true_statements = df[df['label'] == 1]['statement'].values.tolist()
     false_statements = df[df['label'] == 0]['statement'].values.tolist()
-    if len(true_statements) != len(false_statements):
+    if len(true_statements) != len(false_statements) and contrast == "statement":
         true_statements = true_statements[:min(len(true_statements), len(false_statements))]
         false_statements = false_statements[:min(len(true_statements), len(false_statements))]
 
@@ -164,7 +164,7 @@ def plot_detection_results(input_ids, rep_reader_scores_dict, THRESHOLD, start_a
         max_line_width = xlim
         started = False
             
-        for word, score in zip(words[5:], rep_scores[5:]):
+        for word, score in zip(words, rep_scores):
 
             if start_answer_token in word:
                 started = True
@@ -198,6 +198,7 @@ def plot_detection_results(input_ids, rep_reader_scores_dict, THRESHOLD, start_a
             x += word_width + 0.1
         
         iter += 1
+    return fig, ax
 
 
 def plot_lat_scans(input_ids, rep_reader_scores_dict, layer_slice):

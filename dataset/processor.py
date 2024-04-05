@@ -82,11 +82,18 @@ class NTruthMLieDataset(Dataset):
         return accumulated
 
     def save(self, path: str):
+        headers = ["statement", "label", "truth"]
         with open(path, "w") as f:
-            writer = csv.writer(f, delimiter=",")
+            writer = csv.writer(f)
+            writer.writerow(headers)
             for i in range(len(self.data)):
                 sentences, labels = self[i]
-                writer.writerow([str(i), sentences[-1], labels])
+                writer.writerow([sentences[-1], 1, labels])
+
+        
+
+
+
 
 if __name__ == "__main__":
 
@@ -96,8 +103,8 @@ if __name__ == "__main__":
     #     torch.device("mps"),
     # )
     # processor.process()
-    dataset_twotrue = NTruthMLieDataset(NTruthMLieLoader(2, 0, Path("./data/facts_true_false.csv")))
-    dataset_truefalse = NTruthMLieDataset(NTruthMLieLoader(1, 1, Path("./data/facts_true_false.csv")))
+    # dataset_twotrue = NTruthMLieDataset(NTruthMLieLoader(2, 0, Path("./data/facts_true_false.csv")))
+    dataset = NTruthMLieDataset(NTruthMLieLoader(3, 1, Path("./data/cities.csv")))
 
-    dataset_twotrue.save("./data/activations/m=2n=0.csv")
-    dataset_truefalse.save("./data/activations/m=1n=1.csv")
+    dataset.save("./data/m=3n=1_cities.csv")
+    # dataset_truefalse.save("./data/m=1n=1.csv")
