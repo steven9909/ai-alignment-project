@@ -65,6 +65,11 @@ class NTruthMLieLoader:
         if k == -1 and replace:
             raise ValueError("k cannot be -1 if sampling with replacement")
         elif k == -1 and not replace:
+            if self.m == 0:
+                self.m = 1
+            if self.n == 0:
+                self.n = 1
+
             k = min(len(self.df_true) // self.m, len(self.df_false) // self.n)
 
         true_statements = self.df_true.sample(self.m * k, replace=replace)

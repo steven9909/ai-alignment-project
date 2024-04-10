@@ -14,6 +14,7 @@ def honesty_function_dataset(
     user_tag: str = "",
     assistant_tag: str = "",
     seed: int = 0,
+    train_on_false=False,
 ) -> (list, list):
     """
     Processes data to create training and testing datasets based on honesty.
@@ -41,23 +42,50 @@ def honesty_function_dataset(
     honest_statements = []
     untruthful_statements = []
 
-    # Process statements
-    for statement in true_statements:
-        tokens = tokenizer.tokenize(statement)
+    if not train_on_false:
+        # Process statements
+        for statement in true_statements:
+            tokens = tokenizer.tokenize(statement)
 
-        for idx in range(1, len(tokens) - 5):
-            truncated_tokens = tokens[:idx]
-            truncated_statement = tokenizer.convert_tokens_to_string(truncated_tokens)
+            for idx in range(1, len(tokens) - 5):
+                truncated_tokens = tokens[:idx]
+                truncated_statement = tokenizer.convert_tokens_to_string(
+                    truncated_tokens
+                )
 
-            honest_statements.append(
-                f"{user_tag} {template_str.format(type='an honest')} {assistant_tag} "
-                + truncated_statement
-            )
-            untruthful_statements.append(
-                f"{user_tag} {template_str.format(type='an untruthful')} {assistant_tag} "
-                + truncated_statement
-            )
+                honest_statements.append(
+                    f"{user_tag} {template_str.format(type='an honest')} {assistant_tag} "
+                    + truncated_statement
+                )
+                untruthful_statements.append(
+                    f"{user_tag} {template_str.format(type='an untruthful')} {assistant_tag} "
+                    + truncated_statement
+                )
+    else:
+        for statement in true_statements:
+            tokens = tokenizer.tokenize(statement)
 
+            for idx in range(1, len(tokens) - 5):
+                truncated_tokens = tokens[:idx]
+                truncated_statement = tokenizer.convert_tokens_to_string(
+                    truncated_tokens
+                )
+
+                honest_statements.append(
+                    f"{user_tag} {assistant_tag} " + truncated_statement
+                )
+        for statement in false_statements:
+            tokens = tokenizer.tokenize(statement)
+
+            for idx in range(1, len(tokens) - 5):
+                truncated_tokens = tokens[:idx]
+                truncated_statement = tokenizer.convert_tokens_to_string(
+                    truncated_tokens
+                )
+
+                untruthful_statements.append(
+                    f"{user_tag} {assistant_tag} " + truncated_statement
+                )
     # Create training data
     ntrain = 512
     combined_data = [
@@ -97,8 +125,6 @@ def honesty_function_dataset(
 def plot_detection_results(
     input_ids, rep_reader_scores_dict, THRESHOLD, start_answer_token=":"
 ):
-    print("in detection result")
-
     cmap = LinearSegmentedColormap.from_list(
         "rg", ["r", (255 / 255, 255 / 255, 224 / 255), "g"], N=256
     )
@@ -106,8 +132,6 @@ def plot_detection_results(
 
     # Define words and their colors
     words = [token.replace("▁", " ") for token in input_ids]
-
-    print(f"words: {words}")
 
     # Create a new figure
     fig, ax = plt.subplots(figsize=(12.8, 10), dpi=200)
@@ -220,6 +244,7 @@ def plot_detection_results(
             # Update the x position for the next word
             x += word_width + 0.1
 
+        # plt.savefig(f"./detection_results_{iter}.png")
         iter += 1
 
 
