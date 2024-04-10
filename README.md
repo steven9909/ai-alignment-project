@@ -1,3 +1,7 @@
+reading_vector.ipynb contains the code for generating plots for honest/dishonest system prompts trained using RepE approach. 
+
+reading_vector_true_false_train.ipynb contains the code for generating plots for true/false statements trained using RepE + including false statements.
+
 # ai-alignment-project
 
 Using Python 3.11
