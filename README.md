@@ -1,5 +1,7 @@
 # ai-alignment-project
 
+This github repo heavily relies on code from https://github.com/andyzoujm/representation-engineering and https://github.com/saprmarks/geometry-of-truth
+
 Using Python 3.11
 
 - [x] Set up access to model internals
