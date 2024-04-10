@@ -1,7 +1,7 @@
 # ai-alignment-project
 
 ## Citation
-This github repo heavily relies on code from https://github.com/andyzoujm/representation-engineering and https://github.com/saprmarks/geometry-of-truth
+This github repo relies on code from https://github.com/andyzoujm/representation-engineering and https://github.com/saprmarks/geometry-of-truth
 
 ## TO-DO
 Using Python 3.11
