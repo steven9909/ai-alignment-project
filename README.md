@@ -11,7 +11,7 @@ Using Python 3.11
 - [x]  Set up Avalon-LLM
   - [x] Get it to run locally
   - [ ] Testing activation patching
-  - [ ] Testing Mistral involvement
+  - [x] Testing Mistral involvement
  - [x]  Get training data (2 truths 1 lie)
   - [x] Prompt experimentation
     - [x] LLaMA (Bruce)
@@ -23,12 +23,12 @@ Using Python 3.11
 - [ ] RepE 
   - [x] testing using RepE dataset (simplified) (Rob)
   - [x] Testing on two truths and a lie dataset (Bruce)
-  - [ ] Run to get honesty eval on 2 truths and a lie (Stephen)
-  - [ ] Visualize (Stephen)
+  - [x] Run to get honesty eval on 2 truths and a lie (Stephen)
+  - [x] Visualize (Stephen)
   - [ ] Test on Avalon?
 - [ ] Training Approaches
-  - [ ] Make dataset of N truths M lies
-    - [ ] One and one, two and one, two and two
+  - [x] Make dataset of N truths M lies
+    - [x] One and one, two and one, two and two
   - [ ] Train on those (Rob)
   - [ ] See performance
 - [ ] Write-up
